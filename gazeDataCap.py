@@ -187,5 +187,6 @@ reye=pic2[dd:ee,bb:cc]
 fig2_ax1=fig2.add_subplot(2,2,2)
 fig2_ax1.imshow(reye)
 #####################################################################
+
 plt.show()
 print(pic.shape)
