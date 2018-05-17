@@ -36,9 +36,8 @@ class Camera:
     def SetCap(self,camId=0,w=600,h=400):
         self.cap=cv2.VideoCapture()
         self.cap.open(camId)
-        # fourcc = cv2.CAP_PROP_FOURCC('M','J','P','G')
         self.cap.set(cv2.CAP_PROP_FOURCC,1196444237);
-        #cv2.CAP_PROP_FOURCC('M','J','P','G'),设置视频读取格式为MJPG,cv2的python接口相比于c++此处有问题
+        #cv2.CAP_PROP_FOURCC('M','J','P','G'),set video cap mode :MJPG
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,w)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,h)
 
@@ -160,12 +159,12 @@ class Screen:
         tmpR = I - 2 * np.matmul(n, np.transpose(n))
         tmpt = 2 * d * n
 
-        # 屏幕坐标系下相机的位姿
+        # camera pose under screen coordinate
         R = np.matmul(tmpR, np.linalg.inv(cR[0:3, ]))
         t = tmpt - np.matmul(R, cT[0].reshape((3, 1)))
         camera.R_camInScreen = R
         camera.t_camInScreen = t
-        # 相机坐标系下屏幕的位姿
+        # screen pose under camera coordinate
         RR = np.linalg.inv(R)
         tt = -np.matmul(np.linalg.inv(R), t)
         self.R_inCam = RR
