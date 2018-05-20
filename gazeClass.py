@@ -74,33 +74,29 @@ class Screen:
         implement of paper "Camera Pose Estimation Using Images of Planar Mirror Reflections"
         caculate the screen pose under camera coordinate or camera pose under screen coordinate.
 
-        :param rvec:    screen rotation vector under camera coordinate  (nx3 numpy ndarray)
-        :param tvec:    screen translate vector under camera coordinate (nx3 numpy ndarray)
-        :param camera:  Camera class
-        :return:    none
+        virtual screen or virtual camera pose parameters:
 
-        """
-
-        """
-        virtual screen or virtual camera pose parameters:        
-        
         sA:     screen rotation Axis under camera coordinate
         sT:     screen translate vector under camera coordinate
         sR:     screen rotation  matrix *                       *
         sRI:    inverse of sR
         sTI:    inverse of sT
         cA:     camera rotation axis under screen coordinate
-        cAa:    camera rotation angle 
+        cAa:    camera rotation angle
         cR:     camera rotation Matrix
         cT:     camera rotation translate vector
-        
+
         RESULTS:
         self.R_inCam:
         self.t_inCAM:
         camera.R_camInScreen = R
         camera.t_camInScreen = t
-        
+        :param rvec:
+        :param tvec:
+        :param camera:
+        :return:
         """
+
 
 
         sA = rvec
@@ -162,15 +158,16 @@ class Screen:
         # camera pose under screen coordinate
         R = np.matmul(tmpR, np.linalg.inv(cR[0:3, ]))
         t = tmpt - np.matmul(R, cT[0].reshape((3, 1)))
-        camera.R_camInScreen = R
-        camera.t_camInScreen = t
+        # camera.R_camInScreen = R
+        # camera.t_camInScreen = t
         # screen pose under camera coordinate
         RR = np.linalg.inv(R)
         tt = -np.matmul(np.linalg.inv(R), t)
         self.R_inCam = RR
         self.t_inCam = tt
 
-        return 0
+        return R,t
+
 
 
 def cross(a):
