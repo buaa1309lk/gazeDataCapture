@@ -33,11 +33,10 @@ class Camera:
         self.predictor = dlib.shape_predictor('./shape_predictor_68_face_landmarks.dat')
         self.detector = dlib.get_frontal_face_detector()
 
-    def SetCap(self,camId=0,w=600,h=400):
-        self.cap=cv2.VideoCapture()
-        self.cap.open(camId)
+    def SetCap(self,camId=0,w=1920,h=1080):
+        self.cap=cv2.VideoCapture(camId)
         self.cap.set(cv2.CAP_PROP_FOURCC,1196444237);
-        #cv2.CAP_PROP_FOURCC('M','J','P','G'),set video cap mode :MJPG
+        # cv2.CAP_PROP_FOURCC('M','J','P','G'),set video cap mode :MJPG
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,w)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,h)
 
@@ -58,10 +57,10 @@ class Camera:
             shape=self.predictor(frame,dets[0])
             for p in shape.parts():
                 cv2.circle(frame, (p.x, p.y), 3, (0, 255, 0), -1)
-                print(type(shape.parts()))
-            return shape,frame
+                # print(type(shape.parts()))
+            return 1,shape,frame
         else:
-            return 0,frame
+            return 0,shape,frame
 
 
 class Screen:
@@ -177,8 +176,8 @@ def cross(a):
 
 class Head:
     def __init__(self, landmark3d, landmark2d, pic, eyeCornerLen):
-        self.ratio = eyeCornerLen / np.sqrt((landmark2d[36, 0] - landmark2d[45, 0]) ** 2 + (landmark2d[36, 1] - landmark2d[45, 1]) ** 2)
-        self.point3d = self.ratio*(landmark3d-(landmark3d[36]+landmark3d[45])/2)
+        self.ratio = eyeCornerLen / np.sqrt((landmark3d[36, 0] - landmark3d[45, 0]) ** 2 + (landmark3d[36, 1] - landmark3d[45, 1]) ** 2)
+        self.point3d = (self.ratio*(landmark3d-(landmark3d[36]+landmark3d[45])/2))
         self.point2d = landmark2d
         self.pic = pic
         self.eyeCornerLen=eyeCornerLen
@@ -189,7 +188,9 @@ class Head:
     def HeadPoseEstimation(self,camera,screen):
         point2d=np.ascontiguousarray(self.point2d.reshape((self.point2d.shape[0],2,1)))
         point3d=np.ascontiguousarray(self.point3d.reshape((self.point3d.shape[0],3,1)))
-        a,b,c=cv2.solvePnP(point3d,point2d,cameraMatrix=camera.K,distCoeffs=camera.D)
+        # a,b,c=cv2.solvePnP(point3d,point2d,cameraMatrix=camera.K,distCoeffs=camera.D)
+        _,b,c,a=cv2.solvePnPRansac(point3d,point2d,cameraMatrix=camera.K,distCoeffs=camera.D)
+        print(c)
         headT = c.reshape((3, 1))
         headR, _ = cv2.Rodrigues(b)
         transform = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])
@@ -209,8 +210,6 @@ class Head:
             landmark3dInCam[i]=(np.matmul(self.R_inScreen,landmark3dInCam[i].reshape((3,1)))+self.t_inScreen).reshape((1,3))
         return landmark3dInCam
 
-    def ImgNormalization(self):
-        return 0
 
 
 
